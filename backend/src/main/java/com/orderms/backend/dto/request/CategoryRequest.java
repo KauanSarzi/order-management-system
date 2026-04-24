@@ -1,3 +1,5 @@
 package com.orderms.backend.dto.request;
 
-public record CategoryRequest(String name) {}
+import jakarta.validation.constraints.NotBlank;
+
+public record CategoryRequest(@NotBlank String name) {}

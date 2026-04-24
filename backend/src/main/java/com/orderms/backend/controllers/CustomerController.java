@@ -1,20 +1,14 @@
 package com.orderms.backend.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import com.orderms.backend.model.Customer;
 import com.orderms.backend.dto.request.CustomerRequest;
+import com.orderms.backend.dto.response.CustomerResponse;
 import com.orderms.backend.services.CustomerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 
 @RestController
 @RequestMapping("/customers")
@@ -24,26 +18,28 @@ public class CustomerController {
     private final CustomerService service;
 
     @GetMapping
-    public List<Customer> findAll() {
+    public List<CustomerResponse> findAll() {
         return service.findAll();
     }
 
     @GetMapping("/{id}")
-    public Customer findById(@PathVariable @NonNull Long id) {
+    public CustomerResponse findById(@PathVariable @NonNull Long id) {
         return service.findById(id);
     }
 
     @PostMapping
-    public Customer create(@RequestBody CustomerRequest request) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public CustomerResponse create(@RequestBody @Valid CustomerRequest request) {
         return service.create(request);
     }
 
     @PutMapping("/{id}")
-    public Customer update(@PathVariable @NonNull Long id, @RequestBody CustomerRequest request) {
+    public CustomerResponse update(@PathVariable @NonNull Long id, @RequestBody @Valid CustomerRequest request) {
         return service.update(id, request);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable @NonNull Long id) {
         service.delete(id);
     }

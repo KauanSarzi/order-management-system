@@ -1,3 +1,10 @@
 package com.orderms.backend.dto.request;
 
-public record CustomerRequest(String name, String email, String phone) {}
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
+public record CustomerRequest(
+    @NotBlank String name,
+    @NotBlank @Email String email,
+    String phone
+) {}

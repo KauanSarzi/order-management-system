@@ -6,6 +6,7 @@ import java.util.List;
 import com.orderms.backend.dto.request.OrderItemRequest;
 import com.orderms.backend.dto.request.OrderRequest;
 import com.orderms.backend.dto.request.OrderStatusRequest;
+import com.orderms.backend.dto.response.OrderResponse;
 import com.orderms.backend.model.Customer;
 import com.orderms.backend.model.Order;
 import com.orderms.backend.model.OrderItem;
@@ -14,7 +15,6 @@ import com.orderms.backend.repositories.CustomerRepository;
 import com.orderms.backend.repositories.OrderRepository;
 import com.orderms.backend.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,19 +27,21 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
 
-    public List<Order> findAll() {
-        return orderRepository.findAll();
+    public List<OrderResponse> findAll() {
+        return orderRepository.findAll().stream().map(OrderResponse::from).toList();
     }
 
-    public Order findById(@NonNull Long id) {
+    public OrderResponse findById(@NonNull Long id) {
+        return OrderResponse.from(findEntityById(id));
+    }
+
+    private Order findEntityById(@NonNull Long id) {
         return orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order Not Found"));
+                .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
-
-    @SuppressWarnings("null")
     @Transactional
-    public Order create(OrderRequest request) {
+    public OrderResponse create(OrderRequest request) {
         Customer customer = customerRepository.findById(request.customerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
 
@@ -52,7 +54,13 @@ public class OrderService {
 
         for (OrderItemRequest itemRequest : request.items()) {
             Product product = productRepository.findById(itemRequest.productId())
-                    .orElseThrow(() -> new RuntimeException("Product not found"));
+                    .orElseThrow(() -> new RuntimeException("Product not found: id " + itemRequest.productId()));
+
+            if (product.getStockQuantity() < itemRequest.quantity()) {
+                throw new RuntimeException(
+                    "Insufficient stock for product '" + product.getName() + "'. Available: " + product.getStockQuantity()
+                );
+            }
 
             BigDecimal subtotal = product.getPrice().multiply(BigDecimal.valueOf(itemRequest.quantity()));
 
@@ -65,17 +73,20 @@ public class OrderService {
 
             order.getItems().add(item);
             total = total.add(subtotal);
+
+            product.setStockQuantity(product.getStockQuantity() - itemRequest.quantity());
+            productRepository.save(product);
         }
 
         order.setTotal(total);
-        return orderRepository.save(order);
+        return OrderResponse.from(orderRepository.save(order));
     }
 
     @Transactional
-    public Order updateStatus(@NonNull Long id, OrderStatusRequest request) {
-        Order order = findById(id);
+    public OrderResponse updateStatus(@NonNull Long id, OrderStatusRequest request) {
+        Order order = findEntityById(id);
         order.setStatus(request.status());
-        return orderRepository.save(order);
+        return OrderResponse.from(orderRepository.save(order));
     }
 
     public void delete(@NonNull Long id) {
