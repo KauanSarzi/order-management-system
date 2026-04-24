@@ -1,5 +1,6 @@
 package com.orderms.backend.controllers;
 
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +31,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public Category findById(@PathVariable Long id) {
+    public Category findById(@PathVariable @NonNull Long id) {
         return service.findById(id);
     }
 
@@ -40,12 +41,12 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public Category update(@PathVariable Long id, @RequestBody CategoryRequest request) {
+    public Category update(@PathVariable @NonNull Long id, @RequestBody CategoryRequest request) {
         return service.update(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable @NonNull Long id) {
         service.delete(id);
     }
     

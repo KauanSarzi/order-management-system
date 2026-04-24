@@ -7,6 +7,7 @@ import com.orderms.backend.model.Product;
 import com.orderms.backend.repositories.CategoryRepository;
 import com.orderms.backend.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 
@@ -21,11 +22,12 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Product findById(Long id) {
+    public Product findById(@NonNull Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
+    @SuppressWarnings("null") // tirar caso de problema
     public Product create(ProductRequest request) {
         Category category = categoryRepository.findById(request.categoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
@@ -37,7 +39,8 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public Product update(Long id, ProductRequest request) {
+    @SuppressWarnings("null")
+    public Product update(@NonNull Long id, ProductRequest request) {
         Product product = findById(id);
         Category category = categoryRepository.findById(request.categoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
@@ -48,7 +51,7 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public void delete(Long id) {
+    public void delete(@NonNull Long id) {
         productRepository.deleteById(id);
     }
 }

@@ -14,6 +14,8 @@ import com.orderms.backend.repositories.CustomerRepository;
 import com.orderms.backend.repositories.OrderRepository;
 import com.orderms.backend.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,12 +31,13 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
-    public Order findById(Long id) {
+    public Order findById(@NonNull Long id) {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order Not Found"));
     }
 
 
+    @SuppressWarnings("null")
     @Transactional
     public Order create(OrderRequest request) {
         Customer customer = customerRepository.findById(request.customerId())
@@ -69,13 +72,13 @@ public class OrderService {
     }
 
     @Transactional
-    public Order updateStatus(Long id, OrderStatusRequest request) {
+    public Order updateStatus(@NonNull Long id, OrderStatusRequest request) {
         Order order = findById(id);
         order.setStatus(request.status());
         return orderRepository.save(order);
     }
 
-    public void delete(Long id) {
+    public void delete(@NonNull Long id) {
         orderRepository.deleteById(id);
     }
 }

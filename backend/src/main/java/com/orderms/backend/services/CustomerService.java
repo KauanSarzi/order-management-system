@@ -19,7 +19,7 @@ public class CustomerService {
         return repository.findAll();
     }
 
-    public Customer findById(Long id) {
+    public Customer findById(@NonNull Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
     }
@@ -32,7 +32,7 @@ public class CustomerService {
         return repository.save(customer);
     }
 
-    public Customer update(Long id, CustomerRequest request) {
+    public Customer update(@NonNull Long id, CustomerRequest request) {
         Customer customer = findById(id);
         customer.setName(request.name());
         customer.setEmail(request.email());
@@ -40,7 +40,7 @@ public class CustomerService {
         return repository.save(customer);
     }
 
-    public void delete(Long id) {
+    public void delete(@NonNull Long id) {
         repository.deleteById(id);
     }
 }

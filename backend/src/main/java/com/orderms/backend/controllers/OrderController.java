@@ -1,5 +1,6 @@
 package com.orderms.backend.controllers;
 
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,7 +29,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public Order findById(@PathVariable Long id) {
+    public Order findById(@PathVariable @NonNull Long id) {
         return service.findById(id);
     }
 
@@ -38,12 +39,12 @@ public class OrderController {
     }
 
     @PatchMapping("/{id}/status")
-    public Order updateStatus(@PathVariable Long id, @RequestBody OrderStatusRequest request) {
+    public Order updateStatus(@PathVariable @NonNull Long id, @RequestBody OrderStatusRequest request) {
         return service.updateStatus(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable @NonNull Long id) {
         service.delete(id);
     }
 }

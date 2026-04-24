@@ -1,5 +1,6 @@
 package com.orderms.backend.controllers;
 
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +29,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public Product findById(@PathVariable Long id) {
+    public Product findById(@PathVariable @NonNull Long id) {
         return service.findById(id);
     }
 
@@ -38,12 +39,12 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public Product update(@PathVariable Long id, @RequestBody ProductRequest request) {
+    public Product update(@PathVariable @NonNull Long id, @RequestBody ProductRequest request) {
         return service.update(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable @NonNull Long id) {
         service.delete(id);
     }
 }

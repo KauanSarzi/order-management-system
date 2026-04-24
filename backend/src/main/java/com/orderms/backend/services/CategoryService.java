@@ -6,6 +6,8 @@ import com.orderms.backend.dto.request.CategoryRequest;
 import com.orderms.backend.model.Category;
 import com.orderms.backend.repositories.CategoryRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 
@@ -20,7 +22,7 @@ public class CategoryService {
         return repository.findAll();
     }
 
-    public Category findById(Long id) {
+    public Category findById(@NonNull Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
     }
@@ -31,13 +33,13 @@ public class CategoryService {
         return repository.save(category);
     }
 
-    public Category update(Long id, CategoryRequest request) {
+    public Category update(@NonNull Long id, CategoryRequest request) {
         Category category = findById(id);
         category.setName(request.name());
         return repository.save(category);
     }
 
-    public void delete(Long id) {
+    public void delete(@NonNull Long id) {
         repository.deleteById(id);
     }
 }
