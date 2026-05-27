@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Management System</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #16213e;
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { font-size: 1.4rem; letter-spacing: 1px; }
+
+    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+
+    /* Cards */
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .card h2 { margin-bottom: 1rem; font-size: 1.1rem; color: #16213e; }
+
+    /* Form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: .75rem;
+    }
+    .form-grid input, .form-grid select {
+      padding: .5rem .75rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: .95rem;
+      width: 100%;
+    }
+    .form-grid input:focus, .form-grid select:focus {
+      outline: none;
+      border-color: #0f3460;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: .5rem 1.1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: .9rem;
+      font-weight: 600;
+      transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn-primary  { background: #0f3460; color: #fff; }
+    .btn-success  { background: #2ecc71; color: #fff; }
+    .btn-danger   { background: #e74c3c; color: #fff; }
+    .btn-warning  { background: #f39c12; color: #fff; }
+    .btn-info     { background: #3498db; color: #fff; }
+    .btn-row { display: flex; gap: .5rem; margin-top: 1rem; flex-wrap: wrap; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th { background: #16213e; color: #fff; padding: .65rem 1rem; text-align: left; }
+    td { padding: .6rem 1rem; border-bottom: 1px solid #eee; }
+    tr:hover td { background: #f7f9ff; }
+    .badge {
+      display: inline-block;
+      padding: .2rem .6rem;
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-PENDING    { background: #fef9c3; color: #92400e; }
+    .badge-PROCESSING { background: #dbeafe; color: #1e40af; }
+    .badge-DONE       { background: #dcfce7; color: #166534; }
+    .badge-CANCELLED  { background: #fee2e2; color: #991b1b; }
+
+    /* Modal */
+    .modal-backdrop {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 10px;
+      padding: 2rem;
+      width: 340px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.2);
+    }
+    .modal h3 { margin-bottom: 1rem; }
+    .modal select { width: 100%; padding: .5rem; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 1rem; }
+    .modal .btn-row { justify-content: flex-end; }
+
+    /* Report */
+    #report-output {
+      background: #1a1a2e;
+      color: #a8ff78;
+      font-family: monospace;
+      font-size: .9rem;
+      padding: 1.2rem;
+      border-radius: 6px;
+      white-space: pre;
+      overflow-x: auto;
+      display: none;
+      margin-top: 1rem;
+    }
+
+    .empty-msg { text-align: center; color: #999; padding: 2rem 0; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Order Management System</h1>
+  <span id="env-label" style="font-size:.8rem;opacity:.7;"></span>
+</header>
+
+<div class="container">
+
+  <!-- Create Order -->
+  <div class="card">
+    <h2>Novo Pedido</h2>
+    <form id="create-form">
+      <div class="form-grid">
+        <input type="text"   id="f-customer" placeholder="Nome do cliente" required />
+        <input type="text"   id="f-product"  placeholder="Produto"          required />
+        <input type="number" id="f-quantity"  placeholder="Quantidade" min="1" required />
+        <select id="f-status">
+          <option value="PENDING">PENDING</option>
+          <option value="PROCESSING">PROCESSING</option>
+          <option value="DONE">DONE</option>
+          <option value="CANCELLED">CANCELLED</option>
+        </select>
+        <input type="number" id="f-total" placeholder="Total (R$)" step="0.01" min="0" />
+      </div>
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary">Criar Pedido</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Orders Table -->
+  <div class="card">
+    <h2>Pedidos</h2>
+    <div class="btn-row" style="margin-top:0; margin-bottom:1rem;">
+      <button class="btn btn-info" onclick="loadOrders()">&#8635; Atualizar</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Cliente</th><th>Produto</th>
+            <th>Qtd</th><th>Status</th><th>Total</th><th>Criado em</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="orders-tbody">
+          <tr><td colspan="8" class="empty-msg">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Report -->
+  <div class="card">
+    <h2>Relatório</h2>
+    <button class="btn btn-success" onclick="generateReport()">Gerar Relatório</button>
+    <pre id="report-output"></pre>
+  </div>
+
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <h3>Atualizar Pedido <span id="modal-id"></span></h3>
+    <select id="modal-status">
+      <option value="PENDING">PENDING</option>
+      <option value="PROCESSING">PROCESSING</option>
+      <option value="DONE">DONE</option>
+      <option value="CANCELLED">CANCELLED</option>
+    </select>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveEdit()">Salvar</button>
+      <button class="btn btn-danger"  onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── CONFIG ─────────────────────────────────────────────────────────────────
+  // LOCAL DEV: http://localhost:8080
+  // AWS PROD:  substitua pela URL do seu API Gateway
+  const API_BASE_URL = 'http://localhost:8080';
+  // ────────────────────────────────────────────────────────────────────────────
+
+  document.getElementById('env-label').textContent = API_BASE_URL;
+
+  let editingId = null;
+
+  // ─── LOAD ORDERS ────────────────────────────────────────────────────────────
+  async function loadOrders() {
+    const tbody = document.getElementById('orders-tbody');
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">Carregando...</td></tr>';
+    try {
+      const res = await fetch(`${API_BASE_URL}/orders`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const orders = await res.json();
+      renderOrders(orders);
+    } catch (e) {
+      tbody.innerHTML = `<tr><td colspan="8" class="empty-msg" style="color:#e74c3c">Erro ao carregar pedidos: ${e.message}</td></tr>`;
+    }
+  }
+
+  function renderOrders(orders) {
+    const tbody = document.getElementById('orders-tbody');
+    if (!orders.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">Nenhum pedido encontrado.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = orders.map(o => `
+      <tr>
+        <td>${o.id}</td>
+        <td>${esc(o.customerName)}</td>
+        <td>${esc(o.product)}</td>
+        <td>${o.quantity}</td>
+        <td><span class="badge badge-${o.status}">${o.status}</span></td>
+        <td>${o.total != null ? 'R$ ' + Number(o.total).toFixed(2) : '—'}</td>
+        <td>${o.createdAt ? o.createdAt.replace('T', ' ').substring(0, 19) : '—'}</td>
+        <td>
+          <button class="btn btn-warning" onclick="openEdit(${o.id}, '${o.status}')">Editar</button>
+          <button class="btn btn-danger"  onclick="deleteOrder(${o.id})">Excluir</button>
+        </td>
+      </tr>`).join('');
+  }
+
+  // ─── CREATE ORDER ────────────────────────────────────────────────────────────
+  document.getElementById('create-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = {
+      customerName: document.getElementById('f-customer').value.trim(),
+      product:      document.getElementById('f-product').value.trim(),
+      quantity:     parseInt(document.getElementById('f-quantity').value),
+      status:       document.getElementById('f-status').value,
+      total:        parseFloat(document.getElementById('f-total').value) || null,
+    };
+    try {
+      const res = await fetch(`${API_BASE_URL}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      e.target.reset();
+      loadOrders();
+    } catch (err) {
+      alert('Erro ao criar pedido: ' + err.message);
+    }
+  });
+
+  // ─── DELETE ──────────────────────────────────────────────────────────────────
+  async function deleteOrder(id) {
+    if (!confirm(`Excluir pedido #${id}?`)) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/orders/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      loadOrders();
+    } catch (err) {
+      alert('Erro ao excluir: ' + err.message);
+    }
+  }
+
+  // ─── EDIT MODAL ──────────────────────────────────────────────────────────────
+  function openEdit(id, currentStatus) {
+    editingId = id;
+    document.getElementById('modal-id').textContent = `#${id}`;
+    document.getElementById('modal-status').value = currentStatus;
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    editingId = null;
+  }
+
+  async function saveEdit() {
+    const status = document.getElementById('modal-status').value;
+    try {
+      const res = await fetch(`${API_BASE_URL}/orders/${editingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      closeModal();
+      loadOrders();
+    } catch (err) {
+      alert('Erro ao atualizar: ' + err.message);
+    }
+  }
+
+  // ─── REPORT ──────────────────────────────────────────────────────────────────
+  async function generateReport() {
+    const output = document.getElementById('report-output');
+    output.style.display = 'block';
+    output.textContent = 'Gerando relatório...';
+    try {
+      const res = await fetch(`${API_BASE_URL}/report`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const payload = data.body ? JSON.parse(data.body) : data;
+      output.textContent = JSON.stringify(payload, null, 2);
+    } catch (err) {
+      output.textContent = 'Erro ao gerar relatório: ' + err.message;
+    }
+  }
+
+  // ─── UTILS ───────────────────────────────────────────────────────────────────
+  function esc(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  // ─── INIT ────────────────────────────────────────────────────────────────────
+  loadOrders();
+</script>
+</body>
+</html>

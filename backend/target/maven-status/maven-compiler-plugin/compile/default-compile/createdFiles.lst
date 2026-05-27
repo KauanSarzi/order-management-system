@@ -1,0 +1,5 @@
+com\oms\entity\Order.class
+com\oms\OmsApplication.class
+com\oms\service\OrderService.class
+com\oms\repository\OrderRepository.class
+com\oms\controller\OrderController.class

@@ -1,0 +1,36 @@
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: omsdb
+      POSTGRES_USER: omsuser
+      POSTGRES_PASSWORD: omspass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: omsdb
+      DB_USER: omsuser
+      DB_PASSWORD: omspass
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
