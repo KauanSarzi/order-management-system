@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_DB: omsdb
       POSTGRES_USER: omsuser
-      POSTGRES_PASSWORD: omspass
+      POSTGRES_PASSWORD: omspass123
     ports:
       - "5432:5432"
     volumes:
@@ -21,7 +21,7 @@ services:
       DB_PORT: 5432
       DB_NAME: omsdb
       DB_USER: omsuser
-      DB_PASSWORD: omspass
+      DB_PASSWORD: omspass123
     depends_on:
       - db
 
