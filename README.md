@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# order-management-system
-=======
 # Order Management System (OMS) — AWS Academy
 
 Academic project for **AWS Academy – Cloud Developing**.  
@@ -147,4 +144,3 @@ const API_BASE_URL = 'https://YOUR_API_GATEWAY_URL';
 ├── docker-compose.yml
 └── README.md
 ```
->>>>>>> 9f15e1c9e657fd04327f82d23c503380759c1e0d
