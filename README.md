@@ -1,71 +1,87 @@
-# Order Management System (OMS) — AWS Academy
+# Sistema de Gerenciamento de Pedidos (OMS)
 
-Academic project for **AWS Academy – Cloud Developing**.  
-A full REST CRUD for Orders running entirely on AWS with API Gateway, EC2 (Docker), RDS PostgreSQL, and Lambda.
+Projeto acadêmico para a disciplina **Serviços em Nuvem**.  
+CRUD completo de Pedidos executado inteiramente na AWS com API Gateway, EC2 (Docker), RDS PostgreSQL e Lambda.
 
 ---
 
-## Architecture
+## Arquitetura
 
 ```
-Browser
+Navegador
   └── Frontend (EC2 + Docker + Nginx) :80
-          └── all API calls → API Gateway
-                  ├── /orders*  → Backend Spring Boot (EC2 + Docker) :8080  → RDS PostgreSQL (private subnet)
-                  └── /report   → Lambda Node.js 20 (calls GET /orders via HTTP, never touches RDS)
+          └── todas as chamadas → API Gateway
+                  ├── /orders*  → Backend Spring Boot (EC2 + Docker) :8080  → RDS PostgreSQL (subnet privada)
+                  └── /report   → Lambda Node.js 22 (consome GET /orders via HTTP, não acessa o RDS)
 ```
+
+<img width="1443" height="444" alt="Captura de tela 2026-05-27 173134" src="https://github.com/user-attachments/assets/4924771e-f823-4c9d-99bc-a2faba110353" />
+
+[Link do Miro](https://miro.com/app/board/uXjVJvNcYeA=/?moveToWidget=3458764673469293767)
 
 ---
 
-## Prerequisites
+## Serviços AWS Utilizados
 
-| Tool | Version |
-|------|---------|
+| Camada | Serviço AWS | Descrição |
+|--------|-------------|-----------|
+| Back-end | EC2 + Docker | API REST Spring Boot conectada ao RDS |
+| Banco de dados | Amazon RDS (PostgreSQL 16) | Instância em subnet privada, porta não exposta à internet |
+| Gateway | Amazon API Gateway (HTTP API) | Roteia /orders → backend e /report → Lambda |
+| Serverless | AWS Lambda (Node.js 22) | Gera estatísticas consumindo a API via HTTP |
+| Front-end | EC2 + Docker + Nginx | Interface web que consome todas as rotas via API Gateway |
+
+---
+
+## Pré-requisitos (execução local)
+
+| Ferramenta | Versão |
+|------------|--------|
 | Docker + Docker Compose | v2+ |
-| Java (for local Maven build) | 21 |
+| Java (build Maven local) | 21 |
 | Maven | 3.9+ |
 | AWS CLI | v2 |
 
 ---
 
-## Running Locally with Docker Compose
+## Executando Localmente com Docker Compose
 
 ```bash
-# 1. Build the Spring Boot JAR first
+# 1. Compilar o JAR do Spring Boot
 cd backend
 mvn clean package -DskipTests
 cd ..
 
-# 2. Start PostgreSQL + Backend
+# 2. Subir PostgreSQL + Backend
 docker compose up --build
 
-# 3. Open the frontend
-#    Open frontend/src/index.html in your browser
-#    (or serve it: npx serve frontend/src)
+# 3. Abrir o frontend
+#    Abra frontend/src/index.html no navegador
+#    (ou sirva com: npx serve frontend/src)
 
-# 4. Test the API
+# 4. Testar a API
 curl http://localhost:8080/orders
 curl -X POST http://localhost:8080/orders \
   -H "Content-Type: application/json" \
   -d '{"customerName":"Alice","product":"Widget","quantity":2,"status":"PENDING","total":49.90}'
 ```
 
-> The database is initialised automatically from `infra/schema.sql` on first run.
+> O banco de dados é inicializado automaticamente a partir de `infra/schema.sql` na primeira execução.
 
 ---
 
-## API Endpoints
+## Endpoints da API
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET    | `/orders`      | List all orders |
-| GET    | `/orders/{id}` | Get order by ID |
-| POST   | `/orders`      | Create new order |
-| PUT    | `/orders/{id}` | Update order (partial) |
-| DELETE | `/orders/{id}` | Delete order |
-| GET    | `/report`      | Lambda — order statistics |
+| Método | Caminho | Descrição |
+|--------|---------|-----------|
+| GET    | `/orders`      | Lista todos os pedidos |
+| GET    | `/orders/{id}` | Busca pedido por ID |
+| POST   | `/orders`      | Cria novo pedido |
+| PUT    | `/orders/{id}` | Atualiza pedido (parcial) |
+| DELETE | `/orders/{id}` | Remove pedido |
+| GET    | `/report`      | Lambda — estatísticas dos pedidos |
 
-### Order payload
+### Payload do pedido
 ```json
 {
   "customerName": "Alice",
@@ -76,48 +92,50 @@ curl -X POST http://localhost:8080/orders \
 }
 ```
 
-Status values: `PENDING` | `PROCESSING` | `DONE` | `CANCELLED`
+Valores de status: `PENDING` | `PROCESSING` | `DONE` | `CANCELLED`
 
 ---
 
-## Environment Variables
+## Variáveis de Ambiente
 
 ### Backend (Spring Boot)
-| Variable | Example | Description |
-|----------|---------|-------------|
-| `DB_HOST` | `db` / RDS endpoint | PostgreSQL host |
-| `DB_PORT` | `5432` | PostgreSQL port |
-| `DB_NAME` | `omsdb` | Database name |
-| `DB_USER` | `omsuser` | Database user |
-| `DB_PASSWORD` | `omspass` | Database password |
+| Variável | Exemplo | Descrição |
+|----------|---------|-----------|
+| `DB_HOST` | `db` / endpoint RDS | Host do PostgreSQL |
+| `DB_PORT` | `5432` | Porta do PostgreSQL |
+| `DB_NAME` | `omsdb` | Nome do banco de dados |
+| `DB_USER` | `omsuser` | Usuário do banco |
+| `DB_PASSWORD` | `omspass123` | Senha do banco |
 
 ### Lambda
-| Variable | Example | Description |
-|----------|---------|-------------|
-| `API_URL` | `https://xxxx.execute-api.us-east-1.amazonaws.com/prod` | API Gateway base URL |
+| Variável | Exemplo | Descrição |
+|----------|---------|-----------|
+| `API_URL` | `https://xxxx.execute-api.us-east-2.amazonaws.com` | URL base do API Gateway |
 
 ### Frontend
-Edit the constant in [frontend/src/index.html](frontend/src/index.html):
+Edite a constante em [frontend/src/index.html](frontend/src/index.html):
 ```js
-const API_BASE_URL = 'https://YOUR_API_GATEWAY_URL';
+const API_BASE_URL = 'https://SUA_URL_DO_API_GATEWAY';
 ```
 
 ---
 
-## AWS Deployment Summary
+## Deploy na AWS (passo a passo)
 
-1. **VPC** — Create VPC with public subnet (EC2) + private subnet (RDS)
-2. **RDS** — PostgreSQL 16 in private subnet; run `infra/schema.sql` to initialise
-3. **Backend EC2** — Launch instance, install Docker, build image, run container with RDS env vars
-4. **Frontend EC2** — Launch instance, install Docker, build image, run container
-5. **Lambda** — Create function (Node.js 20), upload `lambda/handler.js`, set `API_URL` env var
-6. **API Gateway** — HTTP API:
-   - `ANY /orders/{proxy+}` → Backend EC2 (private IP or internal LB)
-   - `GET /report` → Lambda function
+1. **VPC** — Criar VPC com subnet pública (EC2) + subnet privada (RDS)
+2. **Security Groups** — `sg-frontend` (porta 80), `sg-backend` (porta 8080), `sg-rds` (porta 5432 apenas do sg-backend)
+3. **RDS** — PostgreSQL 16 na subnet privada; executar `infra/schema.sql` para inicializar
+4. **EC2 Backend** — Instância t3.micro, instalar Docker, build da imagem, executar container com variáveis do RDS
+5. **EC2 Frontend** — Instância t3.micro, instalar Docker, build da imagem, executar container
+6. **Lambda** — Criar função (Node.js 22), fazer upload do `lambda/handler.js`, definir variável `API_URL`
+7. **API Gateway** — HTTP API:
+   - `ANY /orders` → Backend EC2
+   - `ANY /orders/{proxy+}` → Backend EC2
+   - `GET /report` → Função Lambda
 
 ---
 
-## Project Structure
+## Estrutura do Projeto
 
 ```
 .
@@ -140,7 +158,7 @@ const API_BASE_URL = 'https://YOUR_API_GATEWAY_URL';
 ├── infra/
 │   └── schema.sql
 ├── docs/
-│   └── architecture.png   (placeholder)
+│   └── architecture.png
 ├── docker-compose.yml
 └── README.md
 ```
