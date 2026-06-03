@@ -5,6 +5,36 @@ CRUD completo de Pedidos executado inteiramente na AWS com API Gateway, EC2 (Doc
 
 ---
 
+## Grupo
+
+| RA | Nome | Responsabilidade |
+|----|------|-----------------|
+| 10439165 | Guilherme Shinohara | Backend Spring Boot + testes locais com PostgreSQL |
+| 10438845 | Kauã de Castro Alencar | Frontend + Dockerfile Nginx + deploy EC2 (frontend) |
+| 10428496 | Alan Ribeiro do Carmo | Dockerfile do backend + deploy na EC2 (backend) |
+| 10436944 | Ricardo Kawamuro | VPC, sub-redes, security groups, Amazon RDS, API Gateway e AWS Lambda |
+| 10427235 | Kauan Sarzi da Rocha | VPC, sub-redes, security groups, Amazon RDS, API Gateway e AWS Lambda |
+
+---
+
+## Visão geral
+
+O domínio escolhido foi **gerenciamento de pedidos** — um cenário central em qualquer negócio 
+que envolva vendas, logística ou controle de estoque. A entidade principal é o **Pedido (Order)**, 
+que representa uma transação entre um cliente e um produto.
+
+O sistema expõe um CRUD completo com as seguintes operações:
+- **Criar** um pedido com cliente, produto, quantidade, status e valor total
+- **Listar** todos os pedidos cadastrados
+- **Atualizar** os dados de um pedido existente
+- **Remover** um pedido do sistema
+
+Além do CRUD, o sistema conta com um endpoint `/report` atendido por uma função **AWS Lambda** 
+que calcula estatísticas em tempo real — total de pedidos, contagem por status e ticket médio — 
+consumindo a própria API via HTTP, sem acesso direto ao banco de dados.
+
+---
+
 ## Arquitetura
 
 ```
@@ -15,7 +45,7 @@ Navegador
                   └── /report   → Lambda Node.js 22 (consome GET /orders via HTTP, não acessa o RDS)
 ```
 
-<img width="1443" height="444" alt="Captura de tela 2026-05-27 173134" src="https://github.com/user-attachments/assets/4924771e-f823-4c9d-99bc-a2faba110353" />
+<img width="1443" height="444" alt="Diagrama de Arquitetura OMS" src="https://github.com/user-attachments/assets/4924771e-f823-4c9d-99bc-a2faba110353" />
 
 [Link do Miro](https://miro.com/app/board/uXjVJvNcYeA=/?moveToWidget=3458764673469293767)
 
