@@ -1,19 +1,7 @@
 # Sistema de Gerenciamento de Pedidos (OMS)
 
-Projeto acadêmico para a disciplina **Serviços em Nuvem**.  
+Projeto para a disciplina **Serviços em Nuvem**.  
 CRUD completo de Pedidos executado inteiramente na AWS com API Gateway, EC2 (Docker), RDS PostgreSQL e Lambda.
-
----
-
-## Grupo
-
-| RA | Nome | Responsabilidade |
-|----|------|-----------------|
-| 10439165 | Guilherme Shinohara | Backend Spring Boot + testes locais com PostgreSQL |
-| 10438845 | Kauã de Castro Alencar | Frontend + Dockerfile Nginx + deploy EC2 (frontend) |
-| 10428496 | Alan Ribeiro do Carmo | Dockerfile do backend + deploy na EC2 (backend) |
-| 10436944 | Ricardo Kawamuro | VPC, sub-redes, security groups, Amazon RDS, API Gateway e AWS Lambda |
-| 10427235 | Kauan Sarzi da Rocha | VPC, sub-redes, security groups, Amazon RDS, API Gateway e AWS Lambda |
 
 ---
 
