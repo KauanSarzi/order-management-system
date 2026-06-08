@@ -5,6 +5,17 @@ CRUD completo de Pedidos executado inteiramente na AWS com API Gateway, EC2 (Doc
 
 ---
 
+## Grupo
+| RA | Nome | Responsabilidade |
+|------|------|-----------------|
+| 10427235 | Kauan Sarzi da Rocha | Definição da arquitetura da solução em AWS, configuração da infraestrutura (VPC, sub-redes e Security Groups), provisionamento do Amazon RDS, configuração do API Gateway, desenvolvimento e integração da AWS Lambda para geração de relatórios e integração entre os serviços da aplicação |
+| 10439165 | Guilherme Shinohara | Desenvolvimento do backend em Spring Boot, modelagem das APIs REST e testes locais com PostgreSQL |
+| 10438845 | Kauã de Castro Alencar | Desenvolvimento do frontend, criação do Dockerfile Nginx e deploy da aplicação frontend na EC2 |
+| 10428496 | Alan Ribeiro do Carmo | Containerização do backend com Docker e deploy da aplicação backend na EC2 |
+| 10436944 | Ricardo Kawamuro | Apoio na configuração da infraestrutura AWS, incluindo VPC, sub-redes, Security Groups e Amazon RDS |
+
+---
+
 ## Visão geral
 
 O domínio escolhido foi **gerenciamento de pedidos** — um cenário central em qualquer negócio 
